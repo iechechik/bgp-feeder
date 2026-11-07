@@ -1,0 +1,10 @@
+[Unit]
+Description=bgp-routes: периодическая сборка BGP-листов
+
+[Timer]
+OnCalendar=*-*-* 02,14:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,30 @@
+route 109.238.90.0/24   blackhole; # rutube.ru - какой то кретин сунул его в ReFilter
+route 89.248.230.0/24   blackhole; # static.rutube.ru
+route 91.221.164.0/24   blackhole; # bl.rutube.ru
+route 178.248.232.0/24  blackhole; # bl.rutube.ru
+
+route 81.90.180.0/24	blackhole; # tvin.su
+route 81.90.182.0/24	blackhole; # tvin.su
+
+route 178.248.237.0/24	blackhole; # перезапись ReFilter -> tkbbank попал
+route 185.65.148.0/24   blackhole; # перезапись Re+Anti -> lk.tkbbank
+
+route 213.180.193.0/24	blackhole; # яндекс
+route 213.180.204.0/24  blackhole; # яндекс
+route 77.88.21.0/24     blackhole; # яндекс
+
+route 91.221.165.0/24   blackhole; # samokat
+route 185.169.155.0/24  blackhole; # samokat
+
+route 104.25.106.0/24   blackhole; # gdeposylka.ru
+route 104.25.107.0/24   blackhole; # gdeposylka.ru
+route 172.67.80.0/24 	blackhole; # gdeposylka.ru
+
+route 178.248.238.0/24 blackhole; # RBC.RU !!!!!! Пидорасы в Re:Filter !!!!!!!
+
+route 104.20.42.0/24	blackhole; # ZEROTIER
+route 172.66.167.0/24	blackhole; # ZEROTIER
+route 34.120.5.0/24	blackhole; # ZEROTIER
+
+route 173.194.222.0/24  blackhole; # app-measurement.com
+

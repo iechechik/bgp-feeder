@@ -1,0 +1,14 @@
+[Unit]
+Description=bgp-routes: сборка BGP-листов и применение в bird2
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/bgp-routes
+ExecStart=/opt/bgp-routes/bgp-routes run --reload
+TimeoutStartSec=15min
+Nice=10
+# коды возврата: 0 - всё хорошо; 1 - фатально (лимит маршрутов, конфиг); 2 - часть листов/применение не удались
+# (юнит помечается failed, уведомление в Telegram bgp-routes отправляет сам)

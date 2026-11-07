@@ -1,0 +1,97 @@
+# bgp-routes: листы для bird2. Пути относительны каталога с этим файлом.
+# Приоритет: у кого выше - тот выигрывает. Из нижестоящего списка удаляется префикс, если он
+#   - точно совпал с префиксом вышестоящего списка, или
+#   - целиком лежит внутри вышестоящего списка с authoritative = true (ручные, RU): он перекрывает и более специфичное.
+# Авторитетные списки должны иметь самый высокий приоритет. Между остальными списками
+# (в т.ч. разных направлений vpn-a / vpn-b) решает самый длинный префикс на роутере, как раньше.
+
+[global]
+out_dir        = "out"
+state_dir      = "state"
+bird_include   = "/etc/bird/bgp-routes/out"   # путь к out/ глазами контейнера bird2 (абсолютный)
+user_agent     = "bgp-routes/1.0"
+max_age_hours  = 48                   # столько живёт кэш источника, если скачать не удалось
+max_routes     = 70000                # суммарный лимит маршрутов (домашний vyos)
+max_change_pct = 30                   # защита: список не применяется, если размер изменился сильнее
+notify_cmd     = "/usr/local/bin/tg-send.sh"
+
+[bird]
+# как вызывать birdc. В docker:      ["docker", "exec", "bird2", "birdc"]
+# birdc на хосте (через сокет):     ["birdc", "-s", "/opt/docker-compose/configs/bird2/run/bird.ctl"]
+birdc             = ["docker", "exec", "bird2", "birdc"]
+peer              = "vyos"            # имя BGP-протокола в bird.conf (для проверки экспорта)
+configure_timeout = 120               # configure timeout N: сам откатится, если не подтвердим; 0 - без автоотката
+settle_seconds    = 5                 # пауза после configure перед проверками
+reload            = false             # применять в bird после каждого run (иначе - только с ключом --reload)
+
+# ---- ручные ---------------------------------------------------------------
+[[list]]
+name = "manual_direct"
+authoritative = true
+importer = "manual"
+priority = 250
+community = "65002:1"
+comment = "direct: next-hop 169.254.254.1 (ручной список)"
+files = ["manual/direct.txt"]
+
+[[list]]
+name = "manual_vpn"
+authoritative = true
+importer = "manual"
+priority = 240
+community = "65002:2"
+comment = "vpn-a: next-hop 172.16.100.6 (ручной список)"
+files = ["manual/vpn.txt"]
+
+# ---- все российские сети по AS (bgp.tools, cc=RU) ----------------------------
+[[list]]
+name = "ru_direct"
+authoritative = true
+importer = "as_select"
+priority = 235
+community = "65002:6"
+comment = "direct: next-hop 169.254.254.1 (все RU-сети по AS)"
+country = ["RU"]
+min_asns = 1000
+min_prefixes = 5000
+
+# ---- сторонние списки ---------------------------------------------------------
+[[list]]
+name = "refilter_vpn"
+importer = "url_list"
+priority = 230
+community = "65002:4"
+comment = "vpn-b: next-hop 172.16.100.2 (Re:filter)"
+max_len = 24
+urls = ["https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/ipsum.lst"]
+
+# AS по выбору. Правила: asn (точно) | names (regex, без учёта регистра) ; country-исключения.
+# Проверка правил:  ./bgp-routes report select_vpn
+[[list]]
+name = "select_vpn"
+importer = "as_select"
+priority = 220
+community = "65002:3"
+comment = "vpn-a: next-hop 172.16.100.6 (AS по выбору)"
+exclude_country = ["RU"]
+asn = [20473]                          # choopa/vultr
+names = [
+  "frantech", "contabo", "digitalocean", "hetzner", "melbikomas", "scaleway", "ovh",
+  "oracle", "google", "microsoft", "amazon", "\\baws\\b", "azure", "cloudflare", "akamai",
+  "\\bmeta\\b", "facebook", "\\bapple\\b", "adobe", "nvidia", "\\bintel\\b", "\\bdell\\b", "\\bcisco\\b",
+  "vyos", "telegram", "whatsapp", "tiktok", "twitter", "cdn77", "haproxy", "reflected",
+  # "github", "fastly",
+]
+min_asns = 100
+
+[[list]]
+name = "antifilter_vpn"
+importer = "url_list"
+priority = 210
+community = "65002:5"
+comment = "vpn-b: next-hop 172.16.100.2 (AntiFilter)"
+max_len = 24
+urls = [
+  "https://antifilter.download/list/allyouneed.lst",
+  "https://community.antifilter.download/list/community.lst",
+]
