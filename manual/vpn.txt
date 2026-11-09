@@ -1,17 +1,2 @@
 ## bt.t-ru.org etc
 route 198.114.96.0/23 blackhole;
-#route 172.67.185.253/32 blackhole;
-#route 104.21.0.111/32 blackhole;
-
-# rutracker.org etc..
-route 172.67.163.0/24 blackhole;
-route 172.67.182.0/24 blackhole;
-route 104.21.32.0/24 blackhole;
-route 104.21.50.0/24 blackhole;
-#
-# geohide proxy
-route 45.155.204.0/25 blackhole;
-route 37.230.192.0/24 blackhole;
-route 62.133.62.0/24 blackhole;
-
-route 84.251.65.0/24 blackhole;

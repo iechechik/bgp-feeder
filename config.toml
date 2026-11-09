@@ -56,21 +56,12 @@ min_asns = 1000
 min_prefixes = 5000
 
 # ---- сторонние списки ---------------------------------------------------------
-[[list]]
-name = "refilter_vpn"
-importer = "url_list"
-priority = 230
-community = "65002:4"
-comment = "vpn-b: next-hop 172.16.100.2 (Re:filter)"
-max_len = 24
-urls = ["https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/ipsum.lst"]
-
 # AS по выбору. Правила: asn (точно) | names (regex, без учёта регистра) ; country-исключения.
 # Проверка правил:  ./bgp-routes report select_vpn
 [[list]]
 name = "select_vpn"
 importer = "as_select"
-priority = 220
+priority = 230
 community = "65002:3"
 comment = "vpn-a: next-hop 172.16.100.6 (AS по выбору)"
 exclude_country = ["RU"]
@@ -83,6 +74,15 @@ names = [
   # "github", "fastly",
 ]
 min_asns = 100
+
+[[list]]
+name = "refilter_vpn"
+importer = "url_list"
+priority = 220
+community = "65002:4"
+comment = "vpn-b: next-hop 172.16.100.2 (Re:filter)"
+max_len = 24
+urls = ["https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/ipsum.lst"]
 
 [[list]]
 name = "antifilter_vpn"
